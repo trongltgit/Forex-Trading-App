@@ -1,0 +1,27 @@
+{% if role == 'user_phong' %}
+  <form action="/submit-deal" method="POST">
+    Ngày hiệu lực: <input type="date" name="effective_date"><br>
+    Mua: <input name="currency_buy"><br>
+    Bán: <input name="currency_sell"><br>
+    Số lượng: <input name="amount"><br>
+    Tỷ giá cần hỏi: <input name="asked_rate"><br>
+    Mục đích: <input name="purpose"><br>
+    Ghi chú: <input name="note"><br>
+    <button>Gửi</button>
+  </form>
+{% elif role == 'pth' %}
+  <a href="/download-report">📥 Tải báo cáo</a>
+  {% for deal in deals %}
+    <div>
+      <p>{{ fernet.decrypt(deal.currency_buy).decode() }} / {{ fernet.decrypt(deal.currency_sell).decode() }}</p>
+      <form action="/reply-deal/{{ deal.id }}" method="POST">
+        Tỷ giá phản hồi: <input name="response_rate">
+        <select name="decision">
+          <option value="accepted">Chấp nhận</option>
+          <option value="rejected">Từ chối</option>
+        </select>
+        <button>Phản hồi</button>
+      </form>
+    </div>
+  {% endfor %}
+{% endif %}
