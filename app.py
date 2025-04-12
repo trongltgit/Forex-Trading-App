@@ -122,20 +122,23 @@ def logout():
     return redirect('/')
 
 # ==== Khởi tạo user mẫu ====
-@app.before_request
-def init_db():
-    if not db.engine.has_table('user'):
-        db.create_all()
-        if not User.query.first():
-            u1 = User(id=fernet.encrypt("phong1".encode()).decode(),
-                      password_hash=generate_password_hash("123"),
-                      role='user_phong')
-            u2 = User(id=fernet.encrypt("pth1".encode()).decode(),
-                      password_hash=generate_password_hash("123"),
-                      role='pth')
-            db.session.add_all([u1, u2])
-            db.session.commit()
+from sqlalchemy import inspect  # Đặt dòng này ở đầu file nếu chưa có
 
+@app.before_first_request
+def init_db():
+    db.create_all()
+    inspector = inspect(db.engine)
+    if not inspector.has_table('user'):
+        u1 = User(id=fernet.encrypt("phong1".encode()).decode(),
+                  password_hash=generate_password_hash("123"),
+                  role='user_phong')
+        u2 = User(id=fernet.encrypt("pth1".encode()).decode(),
+                  password_hash=generate_password_hash("123"),
+                  role='pth')
+        db.session.add_all([u1, u2])
+        db.session.commit()
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=True)
+
