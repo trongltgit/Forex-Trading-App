@@ -124,11 +124,9 @@ def logout():
 # ==== Khởi tạo user mẫu ====
 from sqlalchemy import inspect  # Đặt dòng này ở đầu file nếu chưa có
 
-@app.before_first_request
 def init_db():
     db.create_all()
-    inspector = inspect(db.engine)
-    if not inspector.has_table('user'):
+    if not User.query.first():
         u1 = User(id=fernet.encrypt("phong1".encode()).decode(),
                   password_hash=generate_password_hash("123"),
                   role='user_phong')
@@ -139,6 +137,8 @@ def init_db():
         db.session.commit()
 
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port, debug=True)
+    with app.app_context():
+        init_db()
+    app.run(debug=True)
+
 
