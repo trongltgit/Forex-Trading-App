@@ -53,7 +53,8 @@ def login():
                 session['user_id'] = user.id
                 session['role'] = user.role
                 return redirect('/dashboard')
-        except:
+        except Exception as e:
+            print(f"Error: {e}")
             continue
     return 'Sai thông tin đăng nhập'
 
@@ -104,7 +105,7 @@ def download_report():
         writer = csv.writer(f)
         writer.writerow(['Ngày', 'Mua', 'Bán', 'Số lượng', 'Tỷ giá hỏi', 'Tỷ giá trả lời', 'Trạng thái'])
         for d in deals:
-            writer.writerow([
+            writer.writerow([ 
                 fernet.decrypt(d.effective_date).decode(),
                 fernet.decrypt(d.currency_buy).decode(),
                 fernet.decrypt(d.currency_sell).decode(),
