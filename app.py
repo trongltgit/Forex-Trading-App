@@ -122,18 +122,20 @@ def logout():
     return redirect('/')
 
 # ==== Khởi tạo user mẫu ====
-@app.before_first_request
+@app.before_request
 def init_db():
-    db.create_all()
-    if not User.query.first():
-        u1 = User(id=fernet.encrypt("phong1".encode()).decode(),
-                  password_hash=generate_password_hash("123"),
-                  role='user_phong')
-        u2 = User(id=fernet.encrypt("pth1".encode()).decode(),
-                  password_hash=generate_password_hash("123"),
-                  role='pth')
-        db.session.add_all([u1, u2])
-        db.session.commit()
+    if not db.engine.has_table('user'):
+        db.create_all()
+        if not User.query.first():
+            u1 = User(id=fernet.encrypt("phong1".encode()).decode(),
+                      password_hash=generate_password_hash("123"),
+                      role='user_phong')
+            u2 = User(id=fernet.encrypt("pth1".encode()).decode(),
+                      password_hash=generate_password_hash("123"),
+                      role='pth')
+            db.session.add_all([u1, u2])
+            db.session.commit()
+
 
 if __name__ == '__main__':
     app.run(debug=True)
